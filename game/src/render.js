@@ -402,7 +402,7 @@ export function drawGame(ctx, state) {
   drawWallsAndCover(ctx, state.grid);
   drawExit(ctx, state);
   drawLoot(ctx, state.loot, state.nowSeconds);
-  drawCoins(ctx, state.coins);
+  drawCoins(ctx, state.coinSpots);
   drawCameras(ctx, state.cameras, state.nowSeconds);
   drawGuards(ctx, state.guards);
   drawSmoke(ctx, state.smokeClouds, state.nowSeconds);

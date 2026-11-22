@@ -33,7 +33,7 @@ function freshState() {
       const pos = tileCenter(spot.x, spot.y);
       return { id: spot.id, name: spot.name, x: pos.x, y: pos.y, taken: false };
     }),
-    coins: COIN_SPOTS.map((spot) => {
+    coinSpots: COIN_SPOTS.map((spot) => {
       const pos = tileCenter(spot.x, spot.y);
       return { x: pos.x, y: pos.y, taken: false };
     }),
@@ -99,7 +99,7 @@ function collectPickups(state) {
       say(state, `Stolen: the ${piece.name}!`, 2.5);
     }
   }
-  for (const coin of state.coins) {
+  for (const coin of state.coinSpots) {
     if (coin.taken) continue;
     if (Math.hypot(state.thief.x - coin.x, state.thief.y - coin.y) < 22) {
       coin.taken = true;
