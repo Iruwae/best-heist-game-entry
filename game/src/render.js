@@ -44,7 +44,9 @@ function drawFloor(ctx) {
       ctx.fillRect(tx * TILE, ty * TILE, TILE, TILE);
     }
   }
-  ctx.fillStyle = 'rgba(122, 28, 38, 0.55)';
+  // The carpet stays dim on purpose: a loud red carpet would fight the
+  // red camera cones and laser beams. Danger must pop against the floor.
+  ctx.fillStyle = 'rgba(122, 28, 38, 0.35)';
   ctx.fillRect(19 * TILE, TILE, 2 * TILE, (ROWS - 2) * TILE);
   ctx.strokeStyle = 'rgba(232, 182, 76, 0.5)';
   ctx.lineWidth = 2;
@@ -126,21 +128,29 @@ function drawWallsAndCover(ctx, grid) {
   }
 }
 
-/** The three pieces to steal: gold diamonds that sparkle, with labels. */
+/** The three pieces to steal: big gold diamonds that sparkle, with labels.
+ *  Drawn large on purpose — loot must pop at a glance on a contact sheet. */
 function drawLoot(ctx, loot, nowSeconds) {
   for (const piece of loot) {
     if (piece.taken) continue;
     const pulse = 0.7 + 0.3 * Math.sin(nowSeconds * 3 + piece.x);
     const cx = piece.x;
     const cy = piece.y;
+    const glow = ctx.createRadialGradient(cx, cy, 4, cx, cy, 30);
+    glow.addColorStop(0, `rgba(232, 182, 76, ${(0.4 * pulse).toFixed(3)})`);
+    glow.addColorStop(1, 'rgba(232, 182, 76, 0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 30, 0, Math.PI * 2);
+    ctx.fill();
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(Math.PI / 4);
     ctx.fillStyle = `rgba(232, 182, 76, ${pulse})`;
-    ctx.fillRect(-9, -9, 18, 18);
+    ctx.fillRect(-12, -12, 24, 24);
     ctx.strokeStyle = '#fff2c4';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(-9, -9, 18, 18);
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(-12, -12, 24, 24);
     ctx.restore();
     ctx.fillStyle = '#ffe9a8';
     ctx.font = 'bold 11px Georgia, serif';
@@ -239,31 +249,36 @@ function drawGuards(ctx, guards) {
 }
 
 /** Marlowe, the thief: a dark figure with a gold ring, facing its heading.
- *  A soft gold halo keeps Marlowe visible against the dark floor, even
- *  shrunk to a contact sheet. */
+ *  Marlowe is drawn BIG — body twice the collision radius, a strong gold
+ *  halo, and a MARLOWE name tag — so the protagonist is unmistakable even
+ *  shrunk to a contact sheet. (Collision stays r=12 in main.js.) */
 function drawThief(ctx, thief) {
-  const halo = ctx.createRadialGradient(thief.x, thief.y, 4, thief.x, thief.y, 32);
-  halo.addColorStop(0, 'rgba(232, 182, 76, 0.38)');
+  const halo = ctx.createRadialGradient(thief.x, thief.y, 4, thief.x, thief.y, 44);
+  halo.addColorStop(0, 'rgba(232, 182, 76, 0.55)');
   halo.addColorStop(1, 'rgba(232, 182, 76, 0)');
   ctx.fillStyle = halo;
   ctx.beginPath();
-  ctx.arc(thief.x, thief.y, 32, 0, Math.PI * 2);
+  ctx.arc(thief.x, thief.y, 44, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
   ctx.beginPath();
-  ctx.ellipse(thief.x, thief.y + 10, 12, 5, 0, 0, Math.PI * 2);
+  ctx.ellipse(thief.x, thief.y + 13, 16, 6, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = '#14161f';
   ctx.beginPath();
-  ctx.arc(thief.x, thief.y, 12, 0, Math.PI * 2);
+  ctx.arc(thief.x, thief.y, 19, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = GOLD;
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 5;
   ctx.stroke();
   ctx.fillStyle = GOLD;
   ctx.beginPath();
-  ctx.arc(thief.x + Math.cos(thief.angle) * 7, thief.y + Math.sin(thief.angle) * 7, 3.5, 0, Math.PI * 2);
+  ctx.arc(thief.x + Math.cos(thief.angle) * 11, thief.y + Math.sin(thief.angle) * 11, 5, 0, Math.PI * 2);
   ctx.fill();
+  ctx.fillStyle = GOLD;
+  ctx.font = 'bold 11px Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('MARLOWE', thief.x, thief.y - 30);
   if (thief.sneaking) {
     ctx.fillStyle = '#9fb4ff';
     ctx.font = 'bold 11px Georgia, serif';
@@ -274,25 +289,28 @@ function drawThief(ctx, thief) {
 
 /** Laser grids: bright red beams sweeping the middle gallery, with
  *  emitter boxes on both ends. A beam that touches Marlowe feeds the
- *  alarm — smoke hides you from eyes, not from light. */
+ *  alarm — smoke hides you from eyes, not from light. The beam pulses
+ *  and is drawn thick on purpose: it is the game's signature hook and
+ *  must read at a glance on a contact sheet. */
 function drawLasers(ctx, lasers, nowSeconds) {
   for (const laser of lasers) {
     const y = laserBeamY(laser, nowSeconds);
+    const pulse = 0.8 + 0.2 * Math.sin(nowSeconds * 4 + laser.index * 2);
     // Wide glow, then a hot core: readable even on a contact sheet.
-    ctx.strokeStyle = 'rgba(255, 45, 45, 0.28)';
-    ctx.lineWidth = 10;
+    ctx.strokeStyle = `rgba(255, 45, 45, ${(0.35 * pulse).toFixed(3)})`;
+    ctx.lineWidth = 16;
     ctx.beginPath();
     ctx.moveTo(laser.x0, y);
     ctx.lineTo(laser.x1, y);
     ctx.stroke();
     ctx.strokeStyle = '#ff2d2d';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 5;
     ctx.beginPath();
     ctx.moveTo(laser.x0, y);
     ctx.lineTo(laser.x1, y);
     ctx.stroke();
     ctx.strokeStyle = '#ffb3b3';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(laser.x0, y);
     ctx.lineTo(laser.x1, y);
@@ -300,10 +318,10 @@ function drawLasers(ctx, lasers, nowSeconds) {
     // Emitters on both ends.
     for (const ex of [laser.x0, laser.x1]) {
       ctx.fillStyle = '#7a1010';
-      ctx.fillRect(ex - 5, y - 7, 10, 14);
+      ctx.fillRect(ex - 6, y - 9, 12, 18);
       ctx.fillStyle = '#ff4040';
       ctx.beginPath();
-      ctx.arc(ex, y, 4, 0, Math.PI * 2);
+      ctx.arc(ex, y, 5, 0, Math.PI * 2);
       ctx.fill();
     }
   }

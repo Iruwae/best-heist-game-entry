@@ -13,9 +13,10 @@ the wardens or the wall cameras raise the alarm to full.
 - **Top-down stealth on one screen:** four patrolling wardens with amber
   vision cones, three sweeping red cameras, and an alarm meter that climbs
   whenever you are seen — and falls again when you break sight.
-- **Laser grids in the middle gallery:** two red beams sweep up and down —
-  cross between sweeps, because a beam that touches you feeds the alarm,
-  and smoke hides you from eyes, not from light.
+- **Marlowe, unmissable:** the thief is drawn big — a dark figure with a thick
+  gold ring, a strong gold halo and a MARLOWE name tag — readable at a glance
+  even on the contact sheet. The laser beams are thick, pulsing red with
+  glowing emitters, so the signature hook reads at a glance too.
 - **Several routes per room:** two doorways through every partition wall,
   display cases and statues to hide behind.
 - **Tools at a cost:** smoke pellets (2 coins) blind every cone, EMP
