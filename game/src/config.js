@@ -76,6 +76,14 @@ export const CAMERA_MOUNTS = [
   { x: 6, y: 0, baseAngle: Math.PI / 2, sweep: 0.7, speed: 0.45 },
 ];
 
+// Laser grids: red beams sweeping the middle gallery. A beam is a thin
+// horizontal line between the two partitions; it oscillates up and down
+// so the thief must time the crossing. Smoke does not block light.
+export const LASERS = [
+  { x0: 14, x1: 25, baseRow: 9, ampTiles: 2.5, speed: 0.6, phase: 0 },
+  { x0: 14, x1: 25, baseRow: 16, ampTiles: 2.5, speed: 0.6, phase: 1.5 },
+];
+
 // Tuning: speeds in pixels per second, alarm in points per second.
 export const TUNE = {
   thiefSpeed: 112,

@@ -4,6 +4,7 @@
 // readable at a glance, even shrunk to a contact sheet.
 
 import { COLS, ROWS, TILE, VIEW_W, VIEW_H, WALL, CASE, CRATE, STATUE, TUNE } from './config.js';
+import { laserBeamY } from './lasers.js';
 
 const HUD_H = 46;
 const GOLD = '#e8b64c';
@@ -271,6 +272,43 @@ function drawThief(ctx, thief) {
   }
 }
 
+/** Laser grids: bright red beams sweeping the middle gallery, with
+ *  emitter boxes on both ends. A beam that touches Marlowe feeds the
+ *  alarm — smoke hides you from eyes, not from light. */
+function drawLasers(ctx, lasers, nowSeconds) {
+  for (const laser of lasers) {
+    const y = laserBeamY(laser, nowSeconds);
+    // Wide glow, then a hot core: readable even on a contact sheet.
+    ctx.strokeStyle = 'rgba(255, 45, 45, 0.28)';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(laser.x0, y);
+    ctx.lineTo(laser.x1, y);
+    ctx.stroke();
+    ctx.strokeStyle = '#ff2d2d';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(laser.x0, y);
+    ctx.lineTo(laser.x1, y);
+    ctx.stroke();
+    ctx.strokeStyle = '#ffb3b3';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(laser.x0, y);
+    ctx.lineTo(laser.x1, y);
+    ctx.stroke();
+    // Emitters on both ends.
+    for (const ex of [laser.x0, laser.x1]) {
+      ctx.fillStyle = '#7a1010';
+      ctx.fillRect(ex - 5, y - 7, 10, 14);
+      ctx.fillStyle = '#ff4040';
+      ctx.beginPath();
+      ctx.arc(ex, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
 /** Smoke clouds: soft grey discs that swallow vision cones. */
 function drawSmoke(ctx, clouds, nowSeconds) {
   for (const cloud of clouds) {
@@ -391,13 +429,14 @@ function drawTitle(ctx, state) {
   ctx.font = '17px Georgia, serif';
   ctx.fillText('WASD / arrows — move      Shift — sneak      Q — smoke (2¢)      E — EMP, cameras out (3¢)', VIEW_W / 2, 360);
   ctx.fillText('Dodge the amber cones of the wardens and the red sweeps of the cameras.', VIEW_W / 2, 392);
-  ctx.fillText('When the alarm fills, the wardens reset the room — and the clock keeps its penalty.', VIEW_W / 2, 420);
+  ctx.fillText('Laser grids sweep the middle gallery — cross between sweeps. Smoke hides you, not from light.', VIEW_W / 2, 420);
+  ctx.fillText('When the alarm fills, the wardens reset the room — and the clock keeps its penalty.', VIEW_W / 2, 448);
   ctx.fillStyle = '#ffd94c';
   ctx.font = 'bold 20px Georgia, serif';
   ctx.fillText('Press ENTER or click to begin the heist', VIEW_W / 2, 480);
   ctx.fillStyle = '#9aa3b5';
   ctx.font = '14px Georgia, serif';
-  ctx.fillText('4 wardens · 3 cameras · 3 relics · 6 coins · smoke + EMP.', VIEW_W / 2, 540);
+  ctx.fillText('4 wardens · 3 cameras · 2 laser grids · 3 relics · 6 coins · smoke + EMP.', VIEW_W / 2, 540);
   drawHud(ctx, state);
 }
 
@@ -449,6 +488,7 @@ export function drawGame(ctx, state) {
   drawLoot(ctx, state.loot, state.nowSeconds);
   drawCoins(ctx, state.coinSpots);
   drawCameras(ctx, state.cameras, state.nowSeconds);
+  drawLasers(ctx, state.lasers, state.nowSeconds);
   drawGuards(ctx, state.guards);
   drawSmoke(ctx, state.smokeClouds, state.nowSeconds);
   drawThief(ctx, state.thief);

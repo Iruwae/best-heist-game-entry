@@ -6,11 +6,13 @@
 import {
   TILE, VIEW_W, VIEW_H, ROWS,
   LOOT_SPOTS, COIN_SPOTS, ENTRY_TILE, EXIT_TILES,
-  GUARD_PATROLS, CAMERA_MOUNTS, TUNE, buildLevel, tileCenter,
+  GUARD_PATROLS, CAMERA_MOUNTS, LASERS,
+  TUNE, buildLevel, tileCenter,
 } from './config.js';
 import { circleHitsSolid } from './world.js';
 import { makeGuard, updateGuard, guardAlarmRate } from './guards.js';
 import { makeCamera, updateCamera, cameraAlarmRate, disableAllCameras } from './cameras.js';
+import { makeLaser, laserAlarmRate } from './lasers.js';
 import { useSmoke, useEmp, pruneSmoke } from './tools.js';
 import { makeInput, bindInput, moveVector, endFrameInput } from './input.js';
 import {
@@ -29,6 +31,7 @@ function freshState() {
     grid,
     guards: GUARD_PATROLS.map((def, i) => makeGuard(def, i)),
     cameras: CAMERA_MOUNTS.map((mount, i) => makeCamera(mount, i)),
+    lasers: LASERS.map((def, i) => makeLaser(def, i)),
     loot: LOOT_SPOTS.map((spot) => {
       const pos = tileCenter(spot.x, spot.y);
       return { id: spot.id, name: spot.name, x: pos.x, y: pos.y, taken: false };
@@ -125,12 +128,15 @@ function updatePlaying(state, input, dt) {
   pruneSmoke(state.smokeClouds, state.nowSeconds);
   collectPickups(state);
 
-  // Detection: every cone that sees the thief feeds the alarm.
+  // Detection: every cone that sees the thief feeds the alarm, and a
+  // laser beam that touches the thief does too (smoke hides you from
+  // eyes, not from light).
   let rate = 0;
   for (const guard of state.guards) rate += guardAlarmRate(guard, state.grid, state.thief, state.smokeClouds);
   for (const camera of state.cameras) {
     rate += cameraAlarmRate(camera, state.grid, state.thief, state.smokeClouds, state.nowSeconds);
   }
+  for (const laser of state.lasers) rate += laserAlarmRate(laser, state.thief, state.nowSeconds);
   if (rate > 0) {
     state.alarm = Math.min(TUNE.alarmCaughtAt, state.alarm + rate * dt);
     if (state.nowSeconds - state.lastAlarmTick > 0.45) {
