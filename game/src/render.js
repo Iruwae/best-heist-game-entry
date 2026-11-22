@@ -397,7 +397,7 @@ function drawTitle(ctx, state) {
   ctx.fillText('Press ENTER or click to begin the heist', VIEW_W / 2, 480);
   ctx.fillStyle = '#9aa3b5';
   ctx.font = '14px Georgia, serif';
-  ctx.fillText('A complete heist in one frame: guards, cameras, loot, alarm.', VIEW_W / 2, 540);
+  ctx.fillText('4 wardens · 3 cameras · 3 relics · 6 coins · smoke + EMP.', VIEW_W / 2, 540);
   drawHud(ctx, state);
 }
 

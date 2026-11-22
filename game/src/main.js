@@ -236,15 +236,18 @@ function applyScene(state, scene) {
   } else if (scene === 'getaway') {
     state.screen = 'staged';
     state.time = 221;
-    state.alarm = 12;
+    // Near-miss, not a stroll: alarm high, a warden suspicious with his
+    // cone sweeping down the carpet straight at Marlowe by the door.
+    state.alarm = 68;
     state.coins = 4;
     state.smoke = 1;
     for (const piece of state.loot) piece.taken = true;
+    state.thief.sneaking = true;
     placeThief(19, 21, Math.PI / 2);
     setGuardPose(0, 6, 12, -Math.PI / 2, false);
     setGuardPose(1, 22, 8, Math.PI, false);
     setGuardPose(2, 33, 14, -Math.PI / 2, false);
-    setGuardPose(3, 19, 10, Math.PI / 2, false);
+    setGuardPose(3, 19, 10, Math.PI / 2, true);
     setCameraPose(0, Math.PI / 2 + 0.6);
     setCameraPose(1, Math.PI - 0.4);
     setCameraPose(2, Math.PI / 2 + 0.2);
