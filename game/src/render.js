@@ -33,7 +33,9 @@ function drawCone(ctx, x, y, angle, halfAngle, range, fill, edge) {
   ctx.stroke();
 }
 
-/** The marble floor: two dark blues in a checker, plus a gold inlay border. */
+/** The marble floor: two dark blues in a checker, plus a gold inlay border.
+ *  A deep-red carpet runs up the middle gallery from the van door, so the
+ *  entrance reads as a museum at a glance. */
 function drawFloor(ctx) {
   for (let ty = 0; ty < ROWS; ty++) {
     for (let tx = 0; tx < COLS; tx++) {
@@ -41,9 +43,42 @@ function drawFloor(ctx) {
       ctx.fillRect(tx * TILE, ty * TILE, TILE, TILE);
     }
   }
+  ctx.fillStyle = 'rgba(122, 28, 38, 0.55)';
+  ctx.fillRect(19 * TILE, TILE, 2 * TILE, (ROWS - 2) * TILE);
+  ctx.strokeStyle = 'rgba(232, 182, 76, 0.5)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(19 * TILE + 3, TILE);
+  ctx.lineTo(19 * TILE + 3, (ROWS - 1) * TILE);
+  ctx.moveTo(21 * TILE - 3, TILE);
+  ctx.lineTo(21 * TILE - 3, (ROWS - 1) * TILE);
+  ctx.stroke();
   ctx.strokeStyle = 'rgba(232, 182, 76, 0.25)';
   ctx.lineWidth = 2;
   ctx.strokeRect(TILE, TILE, VIEW_W - TILE * 2, VIEW_H - TILE * 2);
+}
+
+/** Framed paintings on the north and south walls: the museum, not a grid. */
+const PAINTINGS = [
+  { x: 5, y: 0, hue: '#7a2e2e' }, { x: 10, y: 0, hue: '#2e5a7a' }, { x: 16, y: 0, hue: '#7a6a2e' },
+  { x: 23, y: 0, hue: '#2e7a4a' }, { x: 30, y: 0, hue: '#5a2e7a' }, { x: 35, y: 0, hue: '#7a2e2e' },
+  { x: 5, y: 24, hue: '#2e5a7a' }, { x: 10, y: 24, hue: '#7a6a2e' },
+  { x: 29, y: 24, hue: '#2e7a4a' }, { x: 34, y: 24, hue: '#5a2e7a' },
+];
+
+function drawPaintings(ctx) {
+  for (const painting of PAINTINGS) {
+    const x = painting.x * TILE + 3;
+    const y = painting.y * TILE + 3;
+    ctx.fillStyle = GOLD;
+    ctx.fillRect(x, y, TILE - 6, TILE - 6);
+    ctx.fillStyle = painting.hue;
+    ctx.fillRect(x + 3, y + 3, TILE - 12, TILE - 12);
+    ctx.fillStyle = 'rgba(255, 240, 200, 0.5)';
+    ctx.fillRect(x + 5, y + 6, TILE - 16, 4);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.fillRect(x + 3, y + TILE - 10, TILE - 12, 7);
+  }
 }
 
 /** Walls in brass, cover in glass, wood and stone. */
@@ -202,8 +237,17 @@ function drawGuards(ctx, guards) {
   }
 }
 
-/** Marlowe, the thief: a dark figure with a gold ring, facing its heading. */
+/** Marlowe, the thief: a dark figure with a gold ring, facing its heading.
+ *  A soft gold halo keeps Marlowe visible against the dark floor, even
+ *  shrunk to a contact sheet. */
 function drawThief(ctx, thief) {
+  const halo = ctx.createRadialGradient(thief.x, thief.y, 4, thief.x, thief.y, 32);
+  halo.addColorStop(0, 'rgba(232, 182, 76, 0.38)');
+  halo.addColorStop(1, 'rgba(232, 182, 76, 0)');
+  ctx.fillStyle = halo;
+  ctx.beginPath();
+  ctx.arc(thief.x, thief.y, 32, 0, Math.PI * 2);
+  ctx.fill();
   ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
   ctx.beginPath();
   ctx.ellipse(thief.x, thief.y + 10, 12, 5, 0, 0, Math.PI * 2);
@@ -213,7 +257,7 @@ function drawThief(ctx, thief) {
   ctx.arc(thief.x, thief.y, 12, 0, Math.PI * 2);
   ctx.fill();
   ctx.strokeStyle = GOLD;
-  ctx.lineWidth = 2.5;
+  ctx.lineWidth = 3;
   ctx.stroke();
   ctx.fillStyle = GOLD;
   ctx.beginPath();
@@ -400,6 +444,7 @@ export function drawGame(ctx, state) {
   ctx.clearRect(0, 0, VIEW_W, VIEW_H);
   drawFloor(ctx);
   drawWallsAndCover(ctx, state.grid);
+  drawPaintings(ctx);
   drawExit(ctx, state);
   drawLoot(ctx, state.loot, state.nowSeconds);
   drawCoins(ctx, state.coinSpots);

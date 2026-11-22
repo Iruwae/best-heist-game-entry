@@ -224,6 +224,8 @@ function applyScene(state, scene) {
     state.loot[1].taken = true;
     state.thief.sneaking = true;
     placeThief(18, 17, Math.PI);
+    // The smoke pellet just went off at Marlowe's feet: the tool, visible.
+    state.smokeClouds.push({ x: 18 * TILE + TILE / 2, y: 17 * TILE + TILE / 2, radius: TUNE.smokeRadius, bornAt: 2.4, diesAt: 2.4 + TUNE.smokeSeconds });
     setGuardPose(0, 9, 15, 0, false);
     setGuardPose(1, 21, 14, Math.PI, true);
     setGuardPose(2, 31, 12, Math.PI / 2, false);
